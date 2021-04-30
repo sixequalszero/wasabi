@@ -1,3 +1,4 @@
 *.o
-wasabi-*
+*.a
 *.html
+test-cli*
