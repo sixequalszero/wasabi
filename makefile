@@ -2,10 +2,10 @@
 .SUFFIXES: .cpp .h
 
 NAME			= wasabi
-VERSION 		= 0
+VERSION 		= 
 PACKAGES		= exceptions
 SOURCE			= $(PACKAGES:%=%.cpp)
-LIBRARY			= $(NAME:%=%-$(VERSION).a)
+LIBRARY			= $(NAME:%=%.a)
 
 HEADERS			= $(PACKAGES:%=%.h)
 OBJECTS			= $(PACKAGES:%=%.o) 
