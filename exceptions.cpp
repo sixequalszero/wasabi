@@ -4,23 +4,8 @@
 using std::setw;
 using std::left;
 
-inline void report(const string& message,
-	const source_location& location)
-{		
-	static int limitReports = 2000;
-	if(--limitReports>0)
-	{
-	clog << "info: "
-		<< location.file_name() << "("
-		<< location.line() << ":"
-		<< location.column() << ") `"
-		<< location.function_name() << "` "
-		<< message << endl;
-	}
-	else
-		throw_with_nested(runtime_error("Max number of reports reached"));
-}
-
+namespace wasabi::inline v1
+{
 #ifdef VERBOSE
 
 	static int eDepth = 0;
@@ -52,6 +37,7 @@ inline void report(const string& message,
 
 #endif
 
-void VLOG (const string& message) { VLOG (""		, message); }
-void ENTER(const string& message) { ENTER("ENTERING", message); }
-void EXIT (const string& message) { EXIT ("EXITING" , message); }
+	void VLOG (const string& message) { VLOG (""		, message); }
+	void ENTER(const string& message) { ENTER("ENTERING", message); }
+	void EXIT (const string& message) { EXIT ("EXITING" , message); }
+}
