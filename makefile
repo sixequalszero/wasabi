@@ -52,14 +52,14 @@ debug: $(SOURCE) $(HEADERS)
 	g++ $(OPTIONS) $(DEBUG)	-o test-cli test-cli.cpp $(LIBRARY)
 
 run: test-cli
-	@echo -e "\e[1;34mRunning test-cli -h\e[0m"
-	./test-cli -h
+	@echo -e "\e[1;34mRunning test-cli\e[0m"
+	./test-cli
 
 clean:
 	@echo -e "\e[1;34mCleaning\e[0m"
 	rm -fv $(LIBRARY) $(OBJECTS)
 
-all: clean debug
+all: clean debug run
 
 .DELETE_ON_ERROR:
 .PHONY:  run clean all release debug
