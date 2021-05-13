@@ -43,7 +43,7 @@ namespace wasabi::inline v1
 	inline void report(const string& message = "",
 		const source_location& location = source_location::current())
 	{
-		static int limitReports = 2000;
+		static int limitReports = 200;
 		if(--limitReports>0)
 		{
 		clog << "Report: "

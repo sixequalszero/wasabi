@@ -3,12 +3,13 @@
 
 NAME			= wasabi
 VERSION 		= 
-PACKAGES		= exceptions
-SOURCE			= $(PACKAGES:%=%.cpp)
+MODULES			= exceptions files
+SOURCE			= $(MODULES:%=%.cpp)
 LIBRARY			= $(NAME:%=%.a)
 
-HEADERS			= $(PACKAGES:%=%.h)
-OBJECTS			= $(PACKAGES:%=%.o) 
+HEADERS			= $(MODULES:%=%.h)
+OBJECTS			= $(MODULES:%=%.o) 
+TEST_OBJECTS	= $(OBJECTS:%=test-%) 
 
 DEBUG			= -Og -Wall -Wextra -Werror -Wold-style-cast \
 					-pedantic-errors -g -DVERBOSE -fmax-errors=2 #-Wfatal-errors 
@@ -35,6 +36,9 @@ $(LIBRARY): clean $(SOURCE) $(HEADERS)
 	@echo -e "\e[1;34mReleasing exceptions.o\e[0m"
 	g++ $(OPTIONS) $(RELEASE) -c exceptions.cpp
 
+	@echo -e "\e[1;34mReleasing files.o\e[0m"
+	g++ $(OPTIONS) $(RELEASE) -c files.cpp
+
 	@echo -e "\e[1;34mPackaging $(LIBRARY)\e[0m"
 	ar -rcs $(LIBRARY) $(OBJECTS)
 
@@ -44,9 +48,14 @@ $(LIBRARY): clean $(SOURCE) $(HEADERS)
 debug: $(SOURCE) $(HEADERS)
 	@echo -e "\e[1;34mDebugging exceptions.o\e[0m"
 	g++ $(OPTIONS) $(DEBUG)	-c exceptions.cpp
+	g++ $(OPTIONS) $(RELEASE) -c test-exceptions.cpp
+	
+	@echo -e "\e[1;34mDebugging files.o\e[0m"
+	g++ $(OPTIONS) $(DEBUG)	-c files.cpp
+	g++ $(OPTIONS) $(RELEASE) -c test-files.cpp
 
 	@echo -e "\e[1;34mPackaging $(LIBRARY)\e[0m"
-	ar -rcs $(LIBRARY) $(OBJECTS)
+	ar -rcs $(LIBRARY) $(OBJECTS) $(TEST_OBJECTS)
 
 	@echo -e "\e[1;34mDebugging test-cli\e[0m"
 	g++ $(OPTIONS) $(DEBUG)	-o test-cli test-cli.cpp $(LIBRARY)
