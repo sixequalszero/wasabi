@@ -53,7 +53,7 @@ namespace wasabi::inline v1
 		catch (...)
 		{
 			crash<runtime_error>(
-				"Can't open input file " + filepath.string());
+				"Can't open file " + filepath.string());
 		}
 
 		string fileContents;
@@ -73,6 +73,31 @@ namespace wasabi::inline v1
 		file.close();
 
 		return fileContents;
+	}
+
+	void load(ifstream& file, hasLoad auto& POD)
+	{
+		VLOG("LOADING","POD.LOAD");
+		POD.load(file);
+	}
+
+	void load(ifstream& file, noLoad auto& POD)
+	{
+		//VLOG("LOADING","POD");
+		file.read(reinterpret_cast<char*>(&POD),sizeof(POD));
+	}
+	
+	void save(ofstream& file, const hasSave auto& STRUCT)
+	{
+		VLOG("SAVING","struct.SAVE");
+		STRUCT.save(file);
+		VLOG("SAVED","struct.SAVE");
+	}
+
+	void save(ofstream& file, const noSave auto& POD)
+	{
+		//VLOG("SAVING","POD");
+		file.write(reinterpret_cast<const char*>(&POD),sizeof(POD));
 	}
 
 }
