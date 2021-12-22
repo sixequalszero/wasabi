@@ -74,7 +74,7 @@ namespace wasabi::files::inline v1
 
 		return fileContents;
 	}
-
+/*
 	void load(ifstream& file, hasLoad auto& POD)
 	{
 		VLOG("LOADING","POD.LOAD");
@@ -86,7 +86,7 @@ namespace wasabi::files::inline v1
 		//VLOG("LOADING","POD");
 		file.read(reinterpret_cast<char*>(&POD),sizeof(POD));
 	}
-	
+*/	
 	void load(ifstream& file, string& str)
 	{
 		//VLOG("LOADING","STRING");
@@ -97,6 +97,7 @@ namespace wasabi::files::inline v1
 	}
 
 	//void load(ifstream& file, vector<noLoad auto>& data)
+	/*
 	void load(ifstream& file, vector<auto>& data)
 	{
 		//VLOG("LOADING","VECTOR");
@@ -107,6 +108,7 @@ namespace wasabi::files::inline v1
 		for (auto& it : data)
 			load(file, it);
 	}
+	*/
 /*
 	void load(ifstream& file, vector<hasLoad auto>& data)
 	{
@@ -120,7 +122,7 @@ namespace wasabi::files::inline v1
 		//VLOG("LOADED","VECTOR.LOAD");
 	}
 */
-
+/*
 	void save(ofstream& file, const hasSave auto& STRUCT)
 	{
 		VLOG("SAVING","struct.SAVE");
@@ -133,7 +135,7 @@ namespace wasabi::files::inline v1
 		//VLOG("SAVING","POD");
 		file.write(reinterpret_cast<const char*>(&POD),sizeof(POD));
 	}
-
+*/
 	void save(ofstream& file, const string& str)
 	{
 		//VLOG("SAVING","STRING");
@@ -141,7 +143,7 @@ namespace wasabi::files::inline v1
 		save(file, size);
 		file.write(str.c_str(),size);
 	}
-
+/*
 	void save(ofstream& file, const vector<auto>& data)
 	//void save(ofstream& file, const vector<noSave auto>& data)
 	{
@@ -152,6 +154,7 @@ namespace wasabi::files::inline v1
 		for (auto& it : data)
 			save(file, it);
 	}
+	*/
 /*
 	void save(ofstream& file, const vector<hasSave auto>& data)
 	{

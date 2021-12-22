@@ -59,19 +59,72 @@ namespace wasabi::files::inline v1
 	concept noSave= copy_constructible<T> && !
 		( hasSave<T> || isVector<T> || isString<T> );
 
-	void load(ifstream& file, hasLoad auto& POD);
-	void load(ifstream& file, noLoad  auto& POD);
+	//void load(ifstream& file, hasLoad auto& POD);
+	//void load(ifstream& file, noLoad  auto& POD);
+
+	void load(ifstream& file, hasLoad auto& POD)
+	{
+		//VLOG("LOADING","POD.LOAD");
+		POD.load(file);
+	}
+
+	void load(ifstream& file, noLoad auto& POD)
+	{
+		//VLOG("LOADING","POD");
+		file.read(reinterpret_cast<char*>(&POD),sizeof(POD));
+	}
+
 	void load(ifstream& file, string& str);
-	void load(ifstream& file, vector<auto>& data);
+	//void load(ifstream& file, vector<auto>& data);
 	//void load(ifstream& file, vector<hasLoad auto>& data);
 	//void load(ifstream& file, vector<noLoad  auto>& data);
 
-	void save(ofstream& file, const hasSave auto& STRUCT);
-	void save(ofstream& file, const noSave  auto& POD);
+	template <class T, typename U>
+	void load(ifstream& file, set<T, U>& data);
+
+	void load(ifstream& file, vector<auto>& data)
+	{
+		//VLOG("LOADING","VECTOR");
+		size_t size;
+		load(file, size);
+		data.resize(size);
+
+		for (auto& it : data)
+			load(file, it);
+	}
+
+	//void save(ofstream& file, const hasSave auto& STRUCT);
+	//void save(ofstream& file, const noSave  auto& POD);
+
+	void save(ofstream& file, const hasSave auto& STRUCT)
+	{
+		//VLOG("SAVING","struct.SAVE");
+		STRUCT.save(file);
+		//VLOG("SAVED","struct.SAVE");
+	}
+
+	void save(ofstream& file, const noSave auto& POD)
+	{
+		//VLOG("SAVING","POD");
+		file.write(reinterpret_cast<const char*>(&POD),sizeof(POD));
+	}
 	void save(ofstream& file, const string& str);
-	void save(ofstream& file, const vector<auto>& data);
+	//void save(ofstream& file, const vector<auto>& data);
 	//void save(ofstream& file, const vector<hasSave auto>& data);
 	//void save(ofstream& file, const vector<noSave  auto>& data);
+
+	template <class T, typename U>
+	void save(ofstream& file, const set<T, U>& data);
+
+	void save(ofstream& file, const vector<auto>& data)
+	{
+		//VLOG("SAVING","VECTOR");
+		auto size = data.size();
+		save(file, size);
+
+		for (auto& it : data)
+			save(file, it);
+	}
 
 	void copy(auto data, ofstream& file);
 	void copy(ifstream& file, auto data);
