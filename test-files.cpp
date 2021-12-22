@@ -1,15 +1,18 @@
 #include "test-files.h"
 
+#include <filesystem>
 using namespace std::filesystem;
 
 #include <iostream>
 using std::clog;
-
-#include <iostream>
 using std::ios;
 
 #include <fstream>
 using std::ifstream;
+
+#include "files.h"
+using namespace wasabi;
+
 
 namespace wasabi
 {
@@ -19,7 +22,7 @@ namespace wasabi
 	void testFiles()
 	{
 		auto result = testRead();
-		for(int index=0; index<result.size(); ++index)
+		for(size_t index=0; index<result.size(); ++index)
 		{
 			clog << "test\tread()\t(" << index+1 << '/' << result.size() << ")\t"
 				<< (result[index] ? passed : failed);
@@ -34,7 +37,7 @@ namespace wasabi
 
 		try	//file not found
 		{
-			read(current_path()/"no-file");
+			files::read(current_path()/"no-file");
 		}
 		catch(const std::runtime_error& e)
 		{
@@ -45,7 +48,7 @@ namespace wasabi
 		//no file stream exception test
 		//no resize test
 
-		string test = read((current_path()/"test-file"));
+		string test = files::read((current_path()/"test-file"));
 		result[1] = (test == "contents of test file");
 
 		return result;

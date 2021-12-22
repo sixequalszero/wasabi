@@ -47,7 +47,7 @@ namespace wasabi
 		EXIT("testExceptions");
 		
 
-		for(int index=0; index<result.size(); ++index)
+		for(size_t index=0; index<result.size(); ++index)
 		{
 			clog << "test\texceptions\t(" << index+1 << '/' << result.size() << ")\t"
 				<< (result[index] ? passed : failed);

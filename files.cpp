@@ -20,7 +20,7 @@ using std::ofstream;
 #include <sstream>
 using std::ostringstream;
 
-namespace wasabi::inline v1
+namespace wasabi::files::inline v1
 {
 	path getHome()
 	{
@@ -87,6 +87,40 @@ namespace wasabi::inline v1
 		file.read(reinterpret_cast<char*>(&POD),sizeof(POD));
 	}
 	
+	void load(ifstream& file, string& str)
+	{
+		//VLOG("LOADING","STRING");
+		size_t size;
+		load(file, size);
+		str.resize(size);
+		file.read(&str[0],size);
+	}
+
+	//void load(ifstream& file, vector<noLoad auto>& data)
+	void load(ifstream& file, vector<auto>& data)
+	{
+		//VLOG("LOADING","VECTOR");
+		size_t size;
+		load(file, size);
+		data.resize(size);
+
+		for (auto& it : data)
+			load(file, it);
+	}
+/*
+	void load(ifstream& file, vector<hasLoad auto>& data)
+	{
+		//VLOG("LOADING","VECTOR.LOAD");
+		size_t size;
+		load(file, size);
+		data.resize(size);
+
+		for (auto& it : data)
+			it.load(file);
+		//VLOG("LOADED","VECTOR.LOAD");
+	}
+*/
+
 	void save(ofstream& file, const hasSave auto& STRUCT)
 	{
 		VLOG("SAVING","struct.SAVE");
@@ -100,4 +134,34 @@ namespace wasabi::inline v1
 		file.write(reinterpret_cast<const char*>(&POD),sizeof(POD));
 	}
 
+	void save(ofstream& file, const string& str)
+	{
+		//VLOG("SAVING","STRING");
+		size_t size=str.size();
+		save(file, size);
+		file.write(str.c_str(),size);
+	}
+
+	void save(ofstream& file, const vector<auto>& data)
+	//void save(ofstream& file, const vector<noSave auto>& data)
+	{
+		//VLOG("SAVING","VECTOR");
+		auto size = data.size();
+		save(file, size);
+
+		for (auto& it : data)
+			save(file, it);
+	}
+/*
+	void save(ofstream& file, const vector<hasSave auto>& data)
+	{
+		//VLOG("SAVING","VECTOR.SAVE");
+		auto size = data.size();
+		save(file, size);
+
+		for (auto& it : data)
+			it.save(file);
+		//VLOG("SAVED","VECTOR.SAVE");
+	}
+*/
 }

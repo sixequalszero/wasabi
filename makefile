@@ -35,30 +35,32 @@ OPTIONS			= $(STD) ${CFLAGS} $(DEFINITIONS) $(INCLUDE)
 $(LIBRARY): clean $(SOURCE) $(HEADERS)
 	@echo -e "\e[1;34mReleasing exceptions.o\e[0m"
 	g++ $(OPTIONS) $(RELEASE) -c exceptions.cpp
+	g++ $(OPTIONS) $(RELEASE) -c test-exceptions.cpp
 
 	@echo -e "\e[1;34mReleasing files.o\e[0m"
 	g++ $(OPTIONS) $(RELEASE) -c files.cpp
+	g++ $(OPTIONS) $(RELEASE) -c test-files.cpp
 
-	@echo -e "\e[1;34mPackaging $(LIBRARY)\e[0m"
-	ar -rcs $(LIBRARY) $(OBJECTS)
+	@echo -e "\e[1;34mPackaging lib$(LIBRARY)\e[0m"
+	ar -rcs lib$(LIBRARY) $(OBJECTS)
 
 	@echo -e "\e[1;34mReleasing test-cli\e[0m"
-	g++ $(OPTIONS) $(RELEASE) -o test-cli test-cli.cpp $(LIBRARY)
+	g++ $(OPTIONS) $(RELEASE) -o test-cli test-cli.cpp $(TEST_OBJECTS) lib$(LIBRARY)
 
 debug: $(SOURCE) $(HEADERS)
 	@echo -e "\e[1;34mDebugging exceptions.o\e[0m"
 	g++ $(OPTIONS) $(DEBUG)	-c exceptions.cpp
-	g++ $(OPTIONS) $(RELEASE) -c test-exceptions.cpp
+	g++ $(OPTIONS) $(DEBUG) -c test-exceptions.cpp
 	
 	@echo -e "\e[1;34mDebugging files.o\e[0m"
 	g++ $(OPTIONS) $(DEBUG)	-c files.cpp
-	g++ $(OPTIONS) $(RELEASE) -c test-files.cpp
+	g++ $(OPTIONS) $(DEBUG) -c test-files.cpp
 
 	@echo -e "\e[1;34mPackaging $(LIBRARY)\e[0m"
-	ar -rcs $(LIBRARY) $(OBJECTS) $(TEST_OBJECTS)
+	ar -rcs $(LIBRARY) $(OBJECTS)
 
 	@echo -e "\e[1;34mDebugging test-cli\e[0m"
-	g++ $(OPTIONS) $(DEBUG)	-o test-cli test-cli.cpp $(LIBRARY)
+	g++ $(OPTIONS) $(DEBUG)	-o test-cli test-cli.cpp $(TEST_OBJECTS) $(LIBRARY)
 
 run: test-cli
 	@echo -e "\e[1;34mRunning test-cli\e[0m"

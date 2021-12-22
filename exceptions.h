@@ -1,3 +1,6 @@
+#ifndef EXCEPTIONS
+#define EXCEPTIONS
+
 #include <iostream>
 using std::clog;
 using std::endl;
@@ -44,7 +47,7 @@ namespace wasabi::inline v1
 		const source_location& location = source_location::current())
 	{
 		static int limitReports = 200;
-		if(--limitReports>0)
+		if(--limitReports>=0)
 		{
 		clog << "Report: "
 			<< location.file_name() 	<< "("
@@ -54,7 +57,7 @@ namespace wasabi::inline v1
 			<< message 					<< endl;
 		}
 		else
-			throw_with_nested(runtime_error("Max number of reports reached"));
+			throw_with_nested(runtime_error("Max number of reports exceeded"));
 	}
 
 	void VLOG (const string&, const string&);
@@ -64,3 +67,5 @@ namespace wasabi::inline v1
 	void ENTER(const string& );
 	void EXIT (const string& );
 }
+
+#endif
