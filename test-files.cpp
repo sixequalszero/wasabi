@@ -1,4 +1,5 @@
 #include "test-files.h"
+#include "exceptions.h"
 
 #include <filesystem>
 using namespace std::filesystem;
@@ -8,7 +9,13 @@ using std::clog;
 using std::ios;
 
 #include <fstream>
-using std::ifstream;
+using std::fstream;
+
+#include <vector>
+using std::vector;
+
+#include <string>
+using std::string;
 
 #include "files.h"
 using namespace wasabi;
@@ -31,9 +38,9 @@ namespace wasabi
 		
 	}
 
-	bitset<2> testRead()
+	bitset<6> testRead()
 	{
-		bitset<2> result(0);
+		bitset<6> result(0);
 
 		try	//file not found
 		{
@@ -50,6 +57,71 @@ namespace wasabi
 
 		string test = files::read((current_path()/"test-file"));
 		result[1] = (test == "contents of test file");
+
+
+
+		int i = 42;
+		char c = 'a';
+		vector v {6, 7, 8};
+		string s {"can do it"};
+
+		{
+			ofstream file;
+
+			file.exceptions(ofstream::failbit | ofstream::badbit);
+			try
+			{
+				file.open(current_path()/"temp-file", std::ios::out | std::ios::trunc);
+			}
+			catch (...)
+			{
+				crash<runtime_error>("Can't create temp-file");
+			}
+
+
+
+
+			files::write(file, i);
+			files::write(file, c);
+			files::write(file, v);
+			//files::write(file, s);
+
+			file.close();
+		}
+
+		int ni = 0;
+		char nc = 'o';
+		vector nv {0};
+		string ns {""};
+
+		{
+			ifstream file;
+
+			file.exceptions(ifstream::failbit | ifstream::badbit);
+			try
+			{
+				file.open(current_path()/"temp-file", std::ios::in | std::ios::binary);
+			}
+			catch (...)
+			{
+				crash<runtime_error>("Can't open temp-file");
+			}
+
+			files::read(file, ni);
+			files::read(file, nc);
+			files::read(file, nv);
+			//files::read(file, ns);
+
+			file.close();
+		}
+
+		result[2] = (i == ni);
+		result[3] = (c == nc);
+		result[4] = (v == nv);
+		std::cout << v[0] << "!=" << nv[0] << '\n';
+		result[5] = (s == ns);
+
+		remove( current_path()/"temp-file" );
 
 		return result;
 	}

@@ -10,6 +10,12 @@ using std::string;
 #include<set>
 using std::set;
 
+#include<span>
+using std::span;
+
+#include<bit>
+using std::bit_cast;
+
 #include<map>
 using std::map;
 
@@ -22,142 +28,127 @@ using std::ofstream;
 
 #include <concepts>
 using std::copy_constructible;
+using std::is_trivially_copyable;
 
 namespace wasabi::files::inline v1
 {
 	path getHome();
+
 	string read(const path& filepath);
 
 	template <typename T>
-	concept isVector = requires(T t)
+	concept hasRead = requires(T t, ifstream& file)
+		{ t.read(file); };
+
+	template <typename T>
+	concept noRead = std::is_trivially_copyable<T>::value && !hasRead<T>;
+
+	template <typename T>
+	concept hasWrite = requires(T t, ofstream& file)
+		{ t.write(file); };
+
+	template <typename T>
+	concept noWrite= std::is_trivially_copyable<T>::value && !hasWrite<T>;
+
+	constexpr
+	void read(ifstream& file, hasRead auto& STRUCT)
 	{
-		t.size();
-		t.begin();
-		t.end();
-	};
-
-	template <typename T>
-	concept isString = requires(T t)
-	{
-		t.size();
-		t.c_str();
-	};
-
-	template <typename T>
-	concept hasLoad = requires(T t, ifstream& file)
-		{ t.load(file); };
-
-	template <typename T>
-	concept noLoad = copy_constructible<T> && !
-		( hasLoad<T> || isVector<T> || isString<T> );
-
-	template <typename T>
-	concept hasSave = requires(T t, ofstream& file)
-		{ t.save(file); };
-
-	template <typename T>
-	concept noSave= copy_constructible<T> && !
-		( hasSave<T> || isVector<T> || isString<T> );
-
-	//void load(ifstream& file, hasLoad auto& POD);
-	//void load(ifstream& file, noLoad  auto& POD);
-
-	void load(ifstream& file, hasLoad auto& POD)
-	{
-		//VLOG("LOADING","POD.LOAD");
-		POD.load(file);
+		STRUCT.read(file);
 	}
 
-	void load(ifstream& file, noLoad auto& POD)
+	constexpr
+	void write(ofstream& file, const hasWrite auto& STRUCT)
 	{
-		//VLOG("LOADING","POD");
-		file.read(reinterpret_cast<char*>(&POD),sizeof(POD));
+		STRUCT.write(file);
 	}
 
-	void load(ifstream& file, string& str);
-	//void load(ifstream& file, vector<auto>& data);
-	//void load(ifstream& file, vector<hasLoad auto>& data);
-	//void load(ifstream& file, vector<noLoad  auto>& data);
-
-	template <class T, typename U>
-	void load(ifstream& file, set<T, U>& data);
-
-	void load(ifstream& file, vector<auto>& data)
+	constexpr
+	void read(ifstream& file, noRead auto& POD)
 	{
-		//VLOG("LOADING","VECTOR");
-		size_t size;
-		load(file, size);
-		data.resize(size);
+		VLOG("READ POD");
+		file.read(bit_cast<char*>(&POD),sizeof(POD));
+	}
+
+	constexpr
+	void write(ofstream& file, const noWrite auto& POD)
+	{
+		VLOG("WRITE POD");
+		file.write(bit_cast<const char*>(&POD),sizeof(POD));
+	}
+	/*
+	void read(ifstream& file, string& str)
+	{
+		std::span data(str);
+		read(file, data);
+	}
+
+	void write(ofstream& file, const string& str)
+	{
+		std::span data(str);
+		write(file, data);
+	}
+*/
+
+	void read(ifstream& file, vector<auto>& vec)
+	{
+		VLOG("READ SPAN");
+		std::span data(vec);
+		std::cout << data.size() << '\t';
 
 		for (auto& it : data)
-			load(file, it);
+			std::cout << (it);
+
+		read(file, data);
 	}
 
-	//void save(ofstream& file, const hasSave auto& STRUCT);
-	//void save(ofstream& file, const noSave  auto& POD);
-
-	void save(ofstream& file, const hasSave auto& STRUCT)
+	void write(ofstream& file, const vector<auto>& vec)
 	{
-		//VLOG("SAVING","struct.SAVE");
-		STRUCT.save(file);
-		//VLOG("SAVED","struct.SAVE");
-	}
+		VLOG("WRITE SPAN");
+		std::span data(vec);
+		//TRIVIALLY COPIABLE BUT STILL NEEDS TO KNOW ITS SIZE
+		std::cout << bit_cast<const char*>(&data);
 
-	void save(ofstream& file, const noSave auto& POD)
-	{
-		//VLOG("SAVING","POD");
-		file.write(reinterpret_cast<const char*>(&POD),sizeof(POD));
-	}
-	void save(ofstream& file, const string& str);
-	//void save(ofstream& file, const vector<auto>& data);
-	//void save(ofstream& file, const vector<hasSave auto>& data);
-	//void save(ofstream& file, const vector<noSave  auto>& data);
-
-	template <class T, typename U>
-	void save(ofstream& file, const set<T, U>& data);
-
-	void save(ofstream& file, const vector<auto>& data)
-	{
-		//VLOG("SAVING","VECTOR");
-		auto size = data.size();
-		save(file, size);
+		std::cout << sizeof(data) << '\t';
+		std::cout << data.size() << '\n';
 
 		for (auto& it : data)
-			save(file, it);
+			std::cout << (it);
+		std::cout << '\n';
+		for (auto& it : data)
+			std::cout << (it);
+
+
+		write(file, "SPAN");
+		write(file, data);
+		write(file, "SPAN");
 	}
 
-	void copy(auto data, ofstream& file);
-	void copy(ifstream& file, auto data);
-
 	template <class T, typename U>
-	void load(ifstream& file, set<T, U>& data)
+	void read(ifstream& file, set<T, U>& data)
 	{
-		//VLOG("LOADING","SET");
 		std::vector<T> v;
-		load(file, v);
+		read(file, v);
 
 		for (auto& it : v)
 			data.insert(it);
-		//VLOG("LOADED","SET");
 	}
 
 	template <class T, typename U>
-	void save(ofstream& file, const set<T, U>& data)
+	void write(ofstream& file, const set<T, U>& data)
 	{
-		//VLOG("SAVING","SET");
-		std::vector<T> v(data.begin(), data.end());
-		save(file, v);
-		//VLOG("SAVED","SET");
+		//std::vector<T> v(data.begin(), data.end());
+		std::span spandata(data);
+		write(file, spandata);
+		//save(file, v);
 	}
 
 	template <class T, typename U>
-	void load(ifstream& file, map<T, U>& data)
+	void read(ifstream& file, map<T, U>& data)
 	{
-		//VLOG("LOADING","MAP");
 		std::vector<T> keys;
 		std::vector<U> values;;
-		load(file, keys);
-		load(file, values);
+		read(file, keys);
+		read(file, values);
 
 		auto&& key = keys.begin();
 		auto&& value = values.begin();
@@ -170,9 +161,8 @@ namespace wasabi::files::inline v1
 	}
 
 	template <class T, typename U>
-	void save(ofstream& file, map<T, U>& data)
+	void write(ofstream& file, map<T, U>& data)
 	{
-		//VLOG("SAVING","MAP");
 		std::vector<T> keys;
 		std::vector<U> values;;
 
@@ -182,8 +172,8 @@ namespace wasabi::files::inline v1
 			values.push_back(value);
 		}
 
-		save(file, keys);
-		save(file, values);
+		write(file, keys);
+		write(file, values);
 
 	}
 }
